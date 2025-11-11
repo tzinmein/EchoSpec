@@ -1,0 +1,19 @@
+# Build outputs
+bin/
+obj/
+*.user
+*.suo
+
+# NuGet packages
+nupkg/
+*.nupkg
+*.snupkg
+
+# IDE
+.vs/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

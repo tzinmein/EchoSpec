@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/dotnet.yml" />
+    <File Path="CHANGELOG.md" />
+    <File Path="GITHUB_ACTIONS.md" />
+    <File Path="LICENSE" />
+    <File Path="QUICKSTART.md" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/EchoSpec.Tests/EchoSpec.Tests.csproj" />
+  </Folder>
+  <Project Path="src/EchoSpec/EchoSpec.csproj" />
+</Solution>

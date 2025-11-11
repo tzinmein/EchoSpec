@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- NuGet Package Metadata -->
+    <PackageId>EchoSpec</PackageId>
+    <Authors>Ho Tzin Mein</Authors>
+    <Product>EchoSpec</Product>
+    <Description>A flexible, generic reporting library for .NET that generates beautiful reports in multiple output formats. Features extensible renderer architecture with built-in Console, Markdown, and HTML renderers. Supports custom formats (JSON, CSV, etc.). Zero dependencies, fully generic with ReportBuilder&lt;T&gt;, and type-safe.</Description>
+    <Copyright>Copyright (c) 2025 Ho Tzin Mein</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/tzinmein/EchoSpec</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tzinmein/EchoSpec</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>reporting;table;markdown;console;html;testing;test-reports;formatting;renderer;generic;echospec</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+     <PackageIcon>icon.png</PackageIcon> 
+    <PackageReleaseNotes>Initial release with extensible renderer architecture. Includes built-in Console, Markdown, and HTML renderers with support for custom formats.</PackageReleaseNotes>
+    <!-- Build Settings -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\assets\icon.png" Pack="true" PackagePath="/" Condition="Exists('..\..\assets\icon.png')" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="/" Condition="Exists('..\..\README.md')" />
+  </ItemGroup>
+</Project>
