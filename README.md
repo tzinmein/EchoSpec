@@ -598,12 +598,6 @@ dotnet build -c Release
 dotnet pack -c Release -o ./nupkg
 ```
 
-### Publish to NuGet.org
-
-```bash
-dotnet nuget push ./nupkg/EchoSpec.1.0.0.nupkg --api-key YOUR_API_KEY --source https://api.nuget.org/v3/index.json
-```
-
 ### Local Testing
 
 ```bash
@@ -616,7 +610,7 @@ dotnet add package EchoSpec --source LocalEchoSpec
 
 ## Contributing
 
-Contributions welcome! EchoSpec is part of the zxcvbn-ts project but designed as a standalone library.
+Contributions welcome!
 
 ### Development Setup
 
