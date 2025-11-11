@@ -1,5 +1,10 @@
 # EchoSpec
 
+[![Build & Publish NuGet](https://github.com/tzinmein/EchoSpec/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tzinmein/EchoSpec/actions/workflows/dotnet.yml)
+[![NuGet](https://img.shields.io/nuget/v/EchoSpec.svg)](https://www.nuget.org/packages/EchoSpec/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%2010.0-512BD4)](https://dotnet.microsoft.com/)
+
 A flexible, generic reporting library for .NET that generates beautiful test reports in multiple output formats from a single source of data.
 
 ## Features
@@ -206,7 +211,10 @@ HTML:
 
 ```html
 <h1>Test Execution Report</h1>
-<p>Reference: <a href="https://example.com/test-suite">https://example.com/test-suite</a></p>
+<p>
+  Reference:
+  <a href="https://example.com/test-suite">https://example.com/test-suite</a>
+</p>
 
 <h2>Test Results</h2>
 <table>
@@ -479,17 +487,17 @@ public class CsvRenderer : ITableRenderer, IReportRenderer
     public string Render(ITable table)
     {
         var sb = new StringBuilder();
-        
+
         // Header row
         sb.AppendLine(string.Join(",", table.Headers.Select(EscapeCsv)));
-        
+
         // Data rows
         foreach (var row in table.Rows)
         {
             var cells = row.Select(EscapeCsv);
             sb.AppendLine(string.Join(",", cells));
         }
-        
+
         return sb.ToString();
     }
 
