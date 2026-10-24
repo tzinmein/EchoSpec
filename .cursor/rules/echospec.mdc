@@ -1,0 +1,26 @@
+---
+description: EchoSpec library conventions and agent orientation
+alwaysApply: true
+---
+
+# EchoSpec
+
+.NET multi-format reporting library (Console / Markdown / HTML + custom renderers). Zero dependencies. Read `AGENTS.md` for architecture, commands, and prioritized backlog.
+
+## Hard constraints
+
+- Do not add package dependencies to `src/EchoSpec` unless explicitly requested.
+- Public API changes need XML docs + `CHANGELOG.md` + SemVer judgment.
+- `BuildWith` / `GenerateWith` return `object` (`string` or `Dictionary<string,string>` by renderer `Name`) — preserve or add typed overloads; don’t break callers casually.
+- HTML is not in `ReportFormat` / `ReportOutput`; full HTML documents come from `HtmlRenderer.CombineParts` via `ReportBuilder.GenerateWith`.
+- `HtmlRenderer.Render(ITable)` is a **fragment**, not a full document.
+- `CustomSection` picks console vs markdown by `renderer.Name`; other names fall back to the markdown formatter.
+
+## Workflow
+
+```bash
+dotnet build -c Release
+dotnet test -c Release
+```
+
+Prefer library + test fixes over README polish. Keep fluent builder style. Sections under `EchoSpec.Sections` stay internal unless a deliberate API expansion.
