@@ -8,18 +8,20 @@ namespace EchoSpec.Examples;
 /// </summary>
 public class HtmlRendererExample
 {
+    private sealed record TestResult(string TestName, bool Passed, int DurationMs);
+
     public static void Main()
     {
         // Example 1: Simple table with HTML output
         Console.WriteLine("=== Example 1: Simple HTML Table ===\n");
-        
+
         var table = new TableBuilder()
             .AddHeader("Name")
             .AddHeader("Score", ColumnAlignment.Right)
             .AddHeader("Status", ColumnAlignment.Center)
-            .AddRow("Alice", "95", "?")
-            .AddRow("Bob", "87", "?")
-            .AddRow("Charlie", "72", "~");
+            .AddRow("Alice", "95", "PASS")
+            .AddRow("Bob", "87", "PASS")
+            .AddRow("Charlie", "72", "WARN");
 
         var html = (string)table.BuildWith(new HtmlRenderer());
         File.WriteAllText("table-output.html", html);
@@ -30,49 +32,56 @@ public class HtmlRendererExample
 
         var testResults = new[]
         {
-            new { TestName = "Login Test", Passed = true, Duration = 250 },
-            new { TestName = "API Test", Passed = true, Duration = 150 },
-            new { TestName = "UI Test", Passed = false, Duration = 500 }
+            new TestResult("Login Test", true, 250),
+            new TestResult("API Test", true, 150),
+            new TestResult("UI Test", false, 500),
         };
 
-        var report = new ReportBuilder<dynamic>()
+        var reportBuilder = new ReportBuilder<TestResult>()
             .WithTitle("Test Execution Report")
             .WithReferenceUrl("https://example.com/test-suite")
-            .AddTable((table, data) =>
-            {
-                table.AddHeader("Test Name")
-                     .AddHeader("Status", ColumnAlignment.Center)
-                     .AddHeader("Duration (ms)", ColumnAlignment.Right);
-
-                foreach (var result in data)
+            .AddTable(
+                (table, data) =>
                 {
-                    table.AddRow(
-                        result.TestName,
-                        result.Passed ? "?" : "?",
-                        $"{result.Duration}"
-                    );
-                }
+                    table
+                        .AddHeader("Test Name")
+                        .AddHeader("Status", ColumnAlignment.Center)
+                        .AddHeader("Duration (ms)", ColumnAlignment.Right);
 
-                return table;
-            }, "Test Results")
+                    foreach (var result in data)
+                    {
+                        table.AddRow(
+                            result.TestName,
+                            result.Passed ? "PASS" : "FAIL",
+                            result.DurationMs
+                        );
+                    }
+
+                    return table;
+                },
+                "Test Results"
+            )
             .AddSection(
                 data => $"Total: {data.Count()} tests, {data.Count(r => r.Passed)} passed",
-                data => $"**Total:** {data.Count()} tests, {data.Count(r => r.Passed)} passed",
+                data => $"Total: {data.Count()} tests, {data.Count(r => r.Passed)} passed",
                 "Summary"
             );
 
-        var reportHtml = (string)report.GenerateWith(testResults, new HtmlRenderer());
+        var reportOutput = reportBuilder.Generate(testResults, ReportFormat.Both);
+        reportOutput.WriteToConsole();
+        reportOutput.SaveMarkdown("report.md");
+
+        var reportHtml = (string)reportBuilder.GenerateWith(testResults, new HtmlRenderer());
         File.WriteAllText("report.html", reportHtml);
         Console.WriteLine("HTML report saved to: report.html\n");
+        Console.WriteLine("Markdown report saved to: report.md\n");
 
         // Example 3: Generate multiple formats at once
         Console.WriteLine("=== Example 3: Multiple Formats ===\n");
 
-        var outputs = (Dictionary<string, string>)table.BuildWith(
-            new ConsoleRenderer(),
-            new MarkdownRenderer(),
-            new HtmlRenderer()
-        );
+        var outputs =
+            (Dictionary<string, string>)
+                table.BuildWith(new ConsoleRenderer(), new MarkdownRenderer(), new HtmlRenderer());
 
         Console.WriteLine("Console output:");
         Console.WriteLine(outputs["Console"]);
