@@ -3,7 +3,7 @@
 [![Build & Publish NuGet](https://github.com/tzinmein/EchoSpec/actions/workflows/dotnet.yml/badge.svg)](https://github.com/tzinmein/EchoSpec/actions/workflows/dotnet.yml)
 [![NuGet](https://img.shields.io/nuget/v/EchoSpec.svg)](https://www.nuget.org/packages/EchoSpec/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%2010.0-512BD4)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 
 A zero-dependency .NET library for turning tabular data into Console, Markdown, HTML, or custom output from a single source.
 
@@ -33,6 +33,7 @@ var table = new TableBuilder()
 
 Console.WriteLine(table.Build(ReportFormat.Console));
 File.WriteAllText("results.md", table.Build(ReportFormat.Markdown));
+File.WriteAllText("results-table.html", table.Build(ReportFormat.Html)); // <table> fragment
 ```
 
 ```
@@ -54,26 +55,25 @@ var builder = new ReportBuilder<TestResult>()
         foreach (var row in data)
             table.AddRow(row.Name, row.Passed ? "✓" : "✗");
         return table;
-    });
+    })
+    .AddSection(data => $"Total: {data.Count()} tests");
 
-var output = builder.Generate(results, ReportFormat.Both);
+var output = builder.Generate(results, ReportFormat.All);
 output.WriteToConsole();
 output.SaveMarkdown("results.md");
-
-// Full HTML document (table BuildWith returns a <table> fragment only)
-File.WriteAllText(
-    "results.html",
-    (string)builder.GenerateWith(results, new HtmlRenderer()));
+output.SaveHtml("results.html"); // full HTML document
 ```
 
 ## Gotchas
 
 | Topic | Detail |
 |-------|--------|
-| `ReportFormat` / `ReportOutput` | Console and Markdown only — not HTML |
-| Table HTML | `BuildWith(new HtmlRenderer())` → `<table>` fragment |
-| Report HTML | `GenerateWith(..., new HtmlRenderer())` → full document |
-| `BuildWith` / `GenerateWith` | One renderer → `string`; two or more → `Dictionary<string, string>` keyed by `Name` (cast required) |
+| Table HTML | `Build(ReportFormat.Html)` / `BuildWith(new HtmlRenderer())` → `<table>` fragment |
+| Report HTML | `Generate(ReportFormat.Html)` / `GenerateWith(..., new HtmlRenderer())` → full document |
+| `TableBuilder.Build` | Single formats only (`Console`, `Markdown`, `Html`). `Both` / `All` throw — use `BuildWith` |
+| `BuildWith` / `GenerateWith` | One renderer → `string`; `params` → `IReadOnlyDictionary<string, string>` keyed by `Name` |
+| Duplicate `Name` | Throws — renderer names must be unique |
+| Row widths | Default pad/truncate to header count; set `StrictRowWidths = true` to throw |
 
 ## Docs
 

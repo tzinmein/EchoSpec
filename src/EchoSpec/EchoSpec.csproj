@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,7 +17,7 @@
     <PackageTags>reporting;table;markdown;console;html;testing;test-reports;formatting;renderer;generic;echospec</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
      <PackageIcon>icon.png</PackageIcon> 
-    <PackageReleaseNotes>Initial release with extensible renderer architecture. Includes built-in Console, Markdown, and HTML renderers with support for custom formats.</PackageReleaseNotes>
+    <PackageReleaseNotes>2.0: typed BuildWith/GenerateWith, first-class HTML in ReportFormat/ReportOutput, section Prepare-once, StrictRowWidths, markdown escaping. Breaking: no object returns; Build(Both/All) throws; empty tables render headers; net10.0 only.</PackageReleaseNotes>
     <!-- Build Settings -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>

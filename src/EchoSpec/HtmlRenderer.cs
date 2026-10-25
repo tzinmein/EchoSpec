@@ -13,25 +13,24 @@ public class HtmlRenderer : ITableRenderer, IReportRenderer
     /// <inheritdoc/>
     public string Render(ITable table)
     {
-        if (table.Rows.Count == 0)
-            return string.Empty;
-
         var sb = new StringBuilder();
         sb.AppendLine("<table>");
 
-        // Header row
         sb.AppendLine("  <thead>");
         sb.AppendLine("    <tr>");
         for (int i = 0; i < table.Headers.Count; i++)
         {
             var alignment = i < table.Alignments.Count ? table.Alignments[i] : ColumnAlignment.Left;
             var alignAttr = GetAlignmentStyle(alignment);
-            sb.AppendLine($"      <th{alignAttr}>{EscapeHtml(table.Headers[i])}</th>");
+            sb.Append("      <th");
+            sb.Append(alignAttr);
+            sb.Append('>');
+            EscapeHtml(sb, table.Headers[i]);
+            sb.AppendLine("</th>");
         }
         sb.AppendLine("    </tr>");
         sb.AppendLine("  </thead>");
 
-        // Data rows
         sb.AppendLine("  <tbody>");
         foreach (var row in table.Rows)
         {
@@ -39,9 +38,14 @@ public class HtmlRenderer : ITableRenderer, IReportRenderer
             for (int i = 0; i < table.Headers.Count; i++)
             {
                 var value = i < row.Count ? row[i] : string.Empty;
-                var alignment = i < table.Alignments.Count ? table.Alignments[i] : ColumnAlignment.Left;
+                var alignment =
+                    i < table.Alignments.Count ? table.Alignments[i] : ColumnAlignment.Left;
                 var alignAttr = GetAlignmentStyle(alignment);
-                sb.AppendLine($"      <td{alignAttr}>{EscapeHtml(value)}</td>");
+                sb.Append("      <td");
+                sb.Append(alignAttr);
+                sb.Append('>');
+                EscapeHtml(sb, value);
+                sb.AppendLine("</td>");
             }
             sb.AppendLine("    </tr>");
         }
@@ -55,11 +59,17 @@ public class HtmlRenderer : ITableRenderer, IReportRenderer
     public string RenderTitle(string title, string? referenceUrl = null)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"<h1>{EscapeHtml(title)}</h1>");
+        sb.Append("<h1>");
+        EscapeHtml(sb, title);
+        sb.AppendLine("</h1>");
 
         if (referenceUrl != null)
         {
-            sb.AppendLine($"<p>Reference: <a href=\"{EscapeHtml(referenceUrl)}\">{EscapeHtml(referenceUrl)}</a></p>");
+            sb.Append("<p>Reference: <a href=\"");
+            EscapeHtml(sb, referenceUrl);
+            sb.Append("\">");
+            EscapeHtml(sb, referenceUrl);
+            sb.AppendLine("</a></p>");
         }
 
         return sb.ToString();
@@ -68,7 +78,11 @@ public class HtmlRenderer : ITableRenderer, IReportRenderer
     /// <inheritdoc/>
     public string RenderSectionHeader(string sectionTitle)
     {
-        return $"<h2>{EscapeHtml(sectionTitle)}</h2>\n";
+        var sb = new StringBuilder();
+        sb.Append("<h2>");
+        EscapeHtml(sb, sectionTitle);
+        sb.AppendLine("</h2>");
+        return sb.ToString();
     }
 
     /// <inheritdoc/>
@@ -77,7 +91,11 @@ public class HtmlRenderer : ITableRenderer, IReportRenderer
     /// <inheritdoc/>
     public string RenderText(string text)
     {
-        return $"<p>{EscapeHtml(text)}</p>\n";
+        var sb = new StringBuilder();
+        sb.Append("<p>");
+        EscapeHtml(sb, text);
+        sb.AppendLine("</p>");
+        return sb.ToString();
     }
 
     /// <inheritdoc/>
@@ -89,27 +107,36 @@ public class HtmlRenderer : ITableRenderer, IReportRenderer
         sb.AppendLine("<head>");
         sb.AppendLine("  <meta charset=\"utf-8\">");
         sb.AppendLine("  <style>");
-        sb.AppendLine("    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 40px; }");
-        sb.AppendLine("    table { border-collapse: collapse; width: 100%; margin: 20px 0; }");
-        sb.AppendLine("    th, td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }");
+        sb.AppendLine(
+            "    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 40px; }"
+        );
+        sb.AppendLine(
+            "    table { border-collapse: collapse; width: 100%; margin: 20px 0; }"
+        );
+        sb.AppendLine(
+            "    th, td { border: 1px solid #ddd; padding: 12px 8px; text-align: left; }"
+        );
         sb.AppendLine("    th { background-color: #f5f5f5; font-weight: 600; }");
         sb.AppendLine("    tr:nth-child(even) { background-color: #f9f9f9; }");
-        sb.AppendLine("    h1 { color: #333; border-bottom: 2px solid #333; padding-bottom: 10px; }");
+        sb.AppendLine(
+            "    h1 { color: #333; border-bottom: 2px solid #333; padding-bottom: 10px; }"
+        );
         sb.AppendLine("    h2 { color: #555; margin-top: 30px; }");
         sb.AppendLine("    a { color: #0066cc; text-decoration: none; }");
         sb.AppendLine("    a:hover { text-decoration: underline; }");
         sb.AppendLine("  </style>");
         sb.AppendLine("</head>");
         sb.AppendLine("<body>");
-        
-        foreach (var part in parts.Where(p => !string.IsNullOrWhiteSpace(p)))
+
+        foreach (var part in parts)
         {
-            sb.AppendLine(part);
+            if (!string.IsNullOrWhiteSpace(part))
+                sb.AppendLine(part);
         }
-        
+
         sb.AppendLine("</body>");
         sb.AppendLine("</html>");
-        
+
         return sb.ToString();
     }
 
@@ -123,13 +150,31 @@ public class HtmlRenderer : ITableRenderer, IReportRenderer
         };
     }
 
-    private static string EscapeHtml(string text)
+    internal static void EscapeHtml(StringBuilder sb, string text)
     {
-        return text
-            .Replace("&", "&amp;")
-            .Replace("<", "&lt;")
-            .Replace(">", "&gt;")
-            .Replace("\"", "&quot;")
-            .Replace("'", "&#39;");
+        foreach (var c in text)
+        {
+            switch (c)
+            {
+                case '&':
+                    sb.Append("&amp;");
+                    break;
+                case '<':
+                    sb.Append("&lt;");
+                    break;
+                case '>':
+                    sb.Append("&gt;");
+                    break;
+                case '"':
+                    sb.Append("&quot;");
+                    break;
+                case '\'':
+                    sb.Append("&#39;");
+                    break;
+                default:
+                    sb.Append(c);
+                    break;
+            }
+        }
     }
 }

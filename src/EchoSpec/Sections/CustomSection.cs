@@ -1,33 +1,67 @@
 namespace EchoSpec.Sections;
 
 /// <summary>
-/// Custom section implementation.
+/// Custom section with per-renderer or shared plain-text formatters.
 /// </summary>
-internal class CustomSection<T>(
-    Func<IEnumerable<T>, string> consoleFormatter,
-    Func<IEnumerable<T>, string> markdownFormatter,
-    string? title
-) : IReportSection<T>
+internal class CustomSection<T> : IReportSection<T>
 {
-    private readonly Func<IEnumerable<T>, IReportRenderer, string> _formatter = (data, renderer) =>
-        renderer.Name switch
-        {
-            "Console" => consoleFormatter(data),
-            "Markdown" => markdownFormatter(data),
-            _ => markdownFormatter(data),
-        };
+    private readonly Func<IEnumerable<T>, string>? _plainFormatter;
+    private readonly Func<IEnumerable<T>, string>? _consoleFormatter;
+    private readonly Func<IEnumerable<T>, string>? _markdownFormatter;
+    private readonly Func<IEnumerable<T>, string>? _htmlFormatter;
+    private readonly string? _title;
 
-    public string Generate(IEnumerable<T> data, IReportRenderer renderer)
+    public CustomSection(
+        Func<IEnumerable<T>, string> consoleFormatter,
+        Func<IEnumerable<T>, string> markdownFormatter,
+        string? title,
+        Func<IEnumerable<T>, string>? htmlFormatter = null
+    )
     {
-        var parts = new List<string>();
+        _consoleFormatter = consoleFormatter;
+        _markdownFormatter = markdownFormatter;
+        _htmlFormatter = htmlFormatter;
+        _title = title;
+    }
 
-        if (title != null)
+    public CustomSection(Func<IEnumerable<T>, string> plainFormatter, string? title)
+    {
+        _plainFormatter = plainFormatter;
+        _title = title;
+    }
+
+    public IPreparedSection Prepare(IReadOnlyList<T> data)
+    {
+        string? plain = _plainFormatter?.Invoke(data);
+        string? console = _consoleFormatter?.Invoke(data);
+        string? markdown = _markdownFormatter?.Invoke(data);
+        string? html = _htmlFormatter?.Invoke(data);
+
+        return new PreparedCustomSection(_title, plain, console, markdown, html);
+    }
+
+    private sealed class PreparedCustomSection(
+        string? title,
+        string? plain,
+        string? console,
+        string? markdown,
+        string? html
+    ) : IPreparedSection
+    {
+        public string Render(IReportRenderer renderer)
         {
-            parts.Add(renderer.RenderSectionHeader(title));
+            var content = renderer.Name switch
+            {
+                "Console" => console ?? plain ?? markdown ?? string.Empty,
+                "Markdown" => markdown ?? plain ?? string.Empty,
+                "HTML" => html ?? plain ?? markdown ?? string.Empty,
+                _ => plain ?? markdown ?? console ?? string.Empty,
+            };
+
+            if (title == null)
+                return renderer.RenderText(content);
+
+            return string.Concat(renderer.RenderSectionHeader(title), renderer.RenderText(content));
         }
-
-        parts.Add(renderer.RenderText(_formatter(data, renderer)));
-
-        return string.Concat(parts);
     }
 }

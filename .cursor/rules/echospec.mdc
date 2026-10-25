@@ -10,11 +10,12 @@ alwaysApply: true
 ## Hard constraints
 
 - Do not add package dependencies to `src/EchoSpec` unless explicitly requested.
-- Public API changes need XML docs + `CHANGELOG.md` + SemVer judgment.
-- `BuildWith` / `GenerateWith` return `object` (`string` or `Dictionary<string,string>` by renderer `Name`) — preserve or add typed overloads; don’t break callers casually.
-- HTML is not in `ReportFormat` / `ReportOutput`; full HTML documents come from `HtmlRenderer.CombineParts` via `ReportBuilder.GenerateWith`.
-- `HtmlRenderer.Render(ITable)` is a **fragment**, not a full document.
-- `CustomSection` picks console vs markdown by `renderer.Name`; other names fall back to the markdown formatter.
+- Public API changes need XML docs + `CHANGELOG.md` + SemVer judgment (2.x line).
+- `BuildWith` / `GenerateWith`: single renderer → `string`; `params` → `IReadOnlyDictionary<string,string>` by `Name`. No `object` returns.
+- `ReportFormat` includes `Html` / `All`; `ReportOutput` has `HtmlText` + `SaveHtml`.
+- `HtmlRenderer.Render(ITable)` is a **fragment**; full documents come from report `CombineParts`.
+- `TableBuilder.Build(Both|All)` throws — use `BuildWith` or single-format `Build`.
+- `CustomSection`: plain, console+markdown, or console+markdown+html; unknown names fall back plain → markdown → console.
 
 ## Workflow
 

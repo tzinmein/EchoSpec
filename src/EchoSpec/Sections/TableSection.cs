@@ -10,19 +10,21 @@ internal class TableSection<T>(
     string? title
 ) : IReportSection<T>
 {
-    public string Generate(IEnumerable<T> data, IReportRenderer renderer)
+    public IPreparedSection Prepare(IReadOnlyList<T> data)
     {
-        var parts = new List<string>();
-
-        if (title != null)
-        {
-            parts.Add(renderer.RenderSectionHeader(title));
-        }
-
         var table = new TableBuilder();
         tableBuilder(table, data);
-        parts.Add(renderer.RenderTable(table));
+        return new PreparedTableSection(title, table);
+    }
 
-        return string.Concat(parts);
+    private sealed class PreparedTableSection(string? title, TableBuilder table) : IPreparedSection
+    {
+        public string Render(IReportRenderer renderer)
+        {
+            if (title == null)
+                return renderer.RenderTable(table);
+
+            return string.Concat(renderer.RenderSectionHeader(title), renderer.RenderTable(table));
+        }
     }
 }

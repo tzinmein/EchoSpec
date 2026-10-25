@@ -5,5 +5,16 @@ namespace EchoSpec.Sections;
 /// </summary>
 internal interface IReportSection<T>
 {
-    string Generate(IEnumerable<T> data, IReportRenderer renderer);
+    /// <summary>
+    /// Materializes section content once so multiple renderers can reuse it.
+    /// </summary>
+    IPreparedSection Prepare(IReadOnlyList<T> data);
+}
+
+/// <summary>
+/// A section whose data-dependent work is already done; only rendering remains.
+/// </summary>
+internal interface IPreparedSection
+{
+    string Render(IReportRenderer renderer);
 }

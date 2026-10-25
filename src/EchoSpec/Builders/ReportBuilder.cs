@@ -50,10 +50,29 @@ public class ReportBuilder<T>
     }
 
     /// <summary>
-    /// Adds a custom text section to the report.
+    /// Adds a custom text section using the same plain content for every renderer.
+    /// Each renderer applies its own <see cref="IReportRenderer.RenderText"/> formatting.
+    /// </summary>
+    /// <param name="contentFormatter">Produces plain text content from the data.</param>
+    /// <param name="sectionTitle">Optional section title.</param>
+    /// <returns>The current <see cref="ReportBuilder{T}"/> instance.</returns>
+    public ReportBuilder<T> AddSection(
+        Func<IEnumerable<T>, string> contentFormatter,
+        string? sectionTitle = null
+    )
+    {
+        _sections.Add(new CustomSection<T>(contentFormatter, sectionTitle));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a custom text section with Console and Markdown formatters.
+    /// HTML and other renderers use the Markdown formatter text unless an HTML-specific
+    /// overload is used — prefer plain <see cref="AddSection(Func{IEnumerable{T}, string}, string?)"/>
+    /// or the three-formatter overload when targeting HTML.
     /// </summary>
     /// <param name="consoleFormatter">Formatter for console output.</param>
-    /// <param name="markdownFormatter">Formatter for markdown output.</param>
+    /// <param name="markdownFormatter">Formatter for markdown (and fallback) output.</param>
     /// <param name="sectionTitle">Optional section title.</param>
     /// <returns>The current <see cref="ReportBuilder{T}"/> instance.</returns>
     public ReportBuilder<T> AddSection(
@@ -67,31 +86,79 @@ public class ReportBuilder<T>
     }
 
     /// <summary>
-    /// Generates the report using one or more renderers.
+    /// Adds a custom text section with Console, Markdown, and HTML formatters.
+    /// Other custom renderers fall back to the Markdown formatter text, then
+    /// <see cref="IReportRenderer.RenderText"/>.
+    /// </summary>
+    /// <param name="consoleFormatter">Formatter for console output.</param>
+    /// <param name="markdownFormatter">Formatter for markdown output.</param>
+    /// <param name="htmlFormatter">Formatter for HTML output (plain text; HTML renderer escapes and wraps).</param>
+    /// <param name="sectionTitle">Optional section title.</param>
+    /// <returns>The current <see cref="ReportBuilder{T}"/> instance.</returns>
+    public ReportBuilder<T> AddSection(
+        Func<IEnumerable<T>, string> consoleFormatter,
+        Func<IEnumerable<T>, string> markdownFormatter,
+        Func<IEnumerable<T>, string> htmlFormatter,
+        string? sectionTitle = null
+    )
+    {
+        _sections.Add(
+            new CustomSection<T>(consoleFormatter, markdownFormatter, sectionTitle, htmlFormatter)
+        );
+        return this;
+    }
+
+    /// <summary>
+    /// Generates the report with a single renderer.
     /// </summary>
     /// <param name="data">The data to include in the report.</param>
-    /// <param name="renderers">One or more renderers to use for generating output.</param>
-    /// <returns>If a single renderer is provided, returns the rendered string. If multiple renderers are provided, returns a dictionary mapping renderer names to their output.</returns>
-    public object GenerateWith(IEnumerable<T> data, params IReportRenderer[] renderers)
+    /// <param name="renderer">The renderer to use.</param>
+    /// <returns>The rendered report string.</returns>
+    public string GenerateWith(IEnumerable<T> data, IReportRenderer renderer)
     {
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(renderer);
+
+        var dataList = data as IReadOnlyList<T> ?? data.ToList();
+        var prepared = PrepareSections(dataList);
+        return GenerateReport(prepared, renderer);
+    }
+
+    /// <summary>
+    /// Generates the report with one or more renderers. Section tables and formatters run once.
+    /// </summary>
+    /// <param name="data">The data to include in the report.</param>
+    /// <param name="renderers">
+    /// Renderers to use. Each <see cref="IReportRenderer.Name"/> must be unique.
+    /// For a single renderer, prefer <see cref="GenerateWith(IEnumerable{T}, IReportRenderer)"/>.
+    /// </param>
+    /// <returns>A dictionary mapping each renderer <see cref="IReportRenderer.Name"/> to its output.</returns>
+    public IReadOnlyDictionary<string, string> GenerateWith(
+        IEnumerable<T> data,
+        params IReportRenderer[] renderers
+    )
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        ArgumentNullException.ThrowIfNull(renderers);
         if (renderers.Length == 0)
-            throw new ArgumentException(
-                "At least one renderer must be provided.",
-                nameof(renderers)
-            );
+            throw new ArgumentException("At least one renderer must be provided.", nameof(renderers));
 
-        var dataList = data.ToList();
+        var dataList = data as IReadOnlyList<T> ?? data.ToList();
+        var prepared = PrepareSections(dataList);
 
-        if (renderers.Length == 1)
-        {
-            return GenerateReport(dataList, renderers[0]);
-        }
-
-        var results = new Dictionary<string, string>();
+        var results = new Dictionary<string, string>(renderers.Length, StringComparer.Ordinal);
         foreach (var renderer in renderers)
         {
-            results[renderer.Name] = GenerateReport(dataList, renderer);
+            ArgumentNullException.ThrowIfNull(renderer);
+            if (!results.TryAdd(renderer.Name, GenerateReport(prepared, renderer)))
+            {
+                throw new ArgumentException(
+                    $"Duplicate renderer name '{renderer.Name}'. Each renderer Name must be unique.",
+                    nameof(renderers)
+                );
+            }
         }
+
         return results;
     }
 
@@ -103,34 +170,61 @@ public class ReportBuilder<T>
     /// <returns>A <see cref="ReportOutput"/> containing the generated report text.</returns>
     public ReportOutput Generate(IEnumerable<T> data, ReportFormat format = ReportFormat.Both)
     {
-        var dataList = data.ToList();
+        ArgumentNullException.ThrowIfNull(data);
+
+        var dataList = data as IReadOnlyList<T> ?? data.ToList();
+        var prepared = PrepareSections(dataList);
+
         string? consoleText = null;
         string? markdownText = null;
+        string? htmlText = null;
 
-        if (format == ReportFormat.Console || format == ReportFormat.Both)
+        if (format is ReportFormat.Console or ReportFormat.Both or ReportFormat.All)
+            consoleText = GenerateReport(prepared, new ConsoleRenderer());
+
+        if (format is ReportFormat.Markdown or ReportFormat.Both or ReportFormat.All)
+            markdownText = GenerateReport(prepared, new MarkdownRenderer());
+
+        if (format is ReportFormat.Html or ReportFormat.All)
+            htmlText = GenerateReport(prepared, new HtmlRenderer());
+
+        if (consoleText is null && markdownText is null && htmlText is null)
         {
-            consoleText = GenerateReport(dataList, new ConsoleRenderer());
+            throw new ArgumentOutOfRangeException(
+                nameof(format),
+                format,
+                "Unknown report format."
+            );
         }
 
-        if (format == ReportFormat.Markdown || format == ReportFormat.Both)
+        return new ReportOutput
         {
-            markdownText = GenerateReport(dataList, new MarkdownRenderer());
-        }
-
-        return new ReportOutput { ConsoleText = consoleText, MarkdownText = markdownText };
+            ConsoleText = consoleText,
+            MarkdownText = markdownText,
+            HtmlText = htmlText,
+        };
     }
 
-    private string GenerateReport(List<T> data, IReportRenderer renderer)
+    private List<IPreparedSection> PrepareSections(IReadOnlyList<T> data)
     {
-        var parts = new List<string> { renderer.RenderTitle(_title, _referenceUrl) };
-
+        var prepared = new List<IPreparedSection>(_sections.Count);
         foreach (var section in _sections)
+            prepared.Add(section.Prepare(data));
+        return prepared;
+    }
+
+    private string GenerateReport(IReadOnlyList<IPreparedSection> sections, IReportRenderer renderer)
+    {
+        var parts = new List<string>(sections.Count + 1)
         {
-            var sectionText = section.Generate(data, renderer);
+            renderer.RenderTitle(_title, _referenceUrl),
+        };
+
+        foreach (var section in sections)
+        {
+            var sectionText = section.Render(renderer);
             if (!string.IsNullOrWhiteSpace(sectionText))
-            {
                 parts.Add(sectionText);
-            }
         }
 
         return renderer.CombineParts(parts);

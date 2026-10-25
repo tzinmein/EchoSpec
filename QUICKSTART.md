@@ -22,7 +22,7 @@ Console.WriteLine(table.Build(ReportFormat.Console));
 File.WriteAllText("results.md", table.Build(ReportFormat.Markdown));
 
 // Fragment only — not a full HTML document
-var htmlFragment = (string)table.BuildWith(new HtmlRenderer());
+var htmlFragment = table.BuildWith(new HtmlRenderer());
 File.WriteAllText("table.html", htmlFragment);
 ```
 
@@ -74,24 +74,18 @@ var reportBuilder = new ReportBuilder<TestResult>()
         return table;
     })
     .AddSection(
-        data => $"Total: {data.Count()} tests, {data.Count(r => r.Passed)} passed",
         data => $"Total: {data.Count()} tests, {data.Count(r => r.Passed)} passed");
 
-var reportOutput = reportBuilder.Generate(results, ReportFormat.Both);
+var reportOutput = reportBuilder.Generate(results, ReportFormat.All);
 reportOutput.WriteToConsole();
 reportOutput.SaveMarkdown("test-report.md");
-
-// Full HTML document (DOCTYPE, embedded CSS, body)
-var htmlDocument = (string)reportBuilder.GenerateWith(results, new HtmlRenderer());
-File.WriteAllText("test-report.html", htmlDocument);
+reportOutput.SaveHtml("test-report.html");
 ```
-
-`Generate` / `ReportOutput` cover Console and Markdown only.
 
 ### 3. Multiple renderers
 
 ```csharp
-var outputs = (Dictionary<string, string>)table.BuildWith(
+var outputs = table.BuildWith(
     new ConsoleRenderer(),
     new MarkdownRenderer(),
     new HtmlRenderer());
@@ -119,11 +113,13 @@ var output = new ReportBuilder<BenchmarkResult>()
     .AddSection(
         data => $"Fastest: {data.MinBy(r => r.Time)?.Operation}",
         data => $"**Fastest:** {data.MinBy(r => r.Time)?.Operation}",
+        data => $"Fastest: {data.MinBy(r => r.Time)?.Operation}",
         "Summary")
-    .Generate(benchmarks, ReportFormat.Both);
+    .Generate(benchmarks, ReportFormat.All);
 
 output.WriteToConsole();
 output.SaveMarkdown("benchmarks.md");
+output.SaveHtml("benchmarks.html");
 ```
 
 ## API notes
@@ -133,42 +129,51 @@ output.SaveMarkdown("benchmarks.md");
 ```csharp
 public enum ReportFormat
 {
-    Console,
-    Markdown,
-    Both   // Console + Markdown (not HTML)
+    Console,   // 0
+    Markdown,  // 1
+    Both,      // 2 — Console + Markdown (ReportBuilder.Generate only)
+    Html,      // 3
+    All        // 4 — Console + Markdown + HTML (ReportBuilder.Generate only)
 }
 ```
 
 | Path | HTML result |
 |------|-------------|
-| `TableBuilder.BuildWith(new HtmlRenderer())` | `<table>…</table>` fragment |
-| `ReportBuilder<T>.GenerateWith(..., new HtmlRenderer())` | Full HTML document via `CombineParts` |
+| `TableBuilder.Build(ReportFormat.Html)` / `BuildWith(new HtmlRenderer())` | `<table>…</table>` fragment |
+| `ReportBuilder.Generate(ReportFormat.Html)` / `GenerateWith(..., new HtmlRenderer())` | Full HTML document via `CombineParts` |
 
-`TableBuilder.Build` supports Console and Markdown. Prefer `BuildWith` for HTML or multiple custom renderers.
+`TableBuilder.Build` supports only single formats (`Console`, `Markdown`, `Html`). `Both` / `All` throw.
 
 ### Built-in renderers
 
 | Type | `Name` | Notes |
 |------|--------|--------|
 | `ConsoleRenderer` | `"Console"` | Aligned columns; title box for reports |
-| `MarkdownRenderer` | `"Markdown"` | Pipe tables with alignment markers |
+| `MarkdownRenderer` | `"Markdown"` | Pipe tables; escapes `\|` and newlines in cells |
 | `HtmlRenderer` | `"HTML"` | Fragments on tables; full documents on reports |
 
 ### TableBuilder
 
 - `AddHeader(string, ColumnAlignment = Left)`
-- `AddRow(params object[])`
-- `Build(ReportFormat)` → `string`
-- `BuildWith(params ITableRenderer[])` → `string` (one) or `Dictionary<string, string>` keyed by `Name` (two or more)
+- `AddRow(params object[])` / `AddRow(params string[])`
+- `StrictRowWidths` — default `false` (pad/truncate); `true` throws on width mismatch
+- `Build(ReportFormat)` → `string` (single formats only)
+- `BuildWith(ITableRenderer)` → `string`
+- `BuildWith(params ITableRenderer[])` → `IReadOnlyDictionary<string, string>` keyed by `Name`
 - `Clear()`
 
 ### ReportBuilder&lt;T&gt;
 
 - `WithTitle` / `WithReferenceUrl`
 - `AddTable(Func<TableBuilder, IEnumerable<T>, TableBuilder>, string? sectionTitle = null)`
-- `AddSection(consoleFormatter, markdownFormatter, string? sectionTitle = null)` — non-Console/Markdown renderers use the **markdown** formatter text, then `RenderText`
-- `Generate` → `ReportOutput` (`ConsoleText`, `MarkdownText`, `WriteToConsole()`, `SaveMarkdown`)
-- `GenerateWith` → same return rules as `BuildWith`
+- `AddSection(contentFormatter, sectionTitle?)` — same plain text for every renderer; `RenderText` formats
+- `AddSection(console, markdown, sectionTitle?)` — HTML falls back to markdown text unless you use the HTML overload
+- `AddSection(console, markdown, html, sectionTitle?)` — per-format content
+- `Generate` → `ReportOutput` (`ConsoleText`, `MarkdownText`, `HtmlText`, `WriteToConsole()`, `SaveMarkdown`, `SaveHtml`)
+- `GenerateWith(data, IReportRenderer)` → `string`
+- `GenerateWith(data, params IReportRenderer[])` → `IReadOnlyDictionary<string, string>`
+
+Multi-format `Generate` / `GenerateWith` prepare each section once (tables and formatters run a single time).
 
 ### Interfaces
 
@@ -237,7 +242,7 @@ public class CsvRenderer : ITableRenderer, IReportRenderer
 ```
 
 ```csharp
-var csv = (string)table.BuildWith(new CsvRenderer());
+var csv = table.BuildWith(new CsvRenderer());
 File.WriteAllText("data.csv", csv);
 ```
 

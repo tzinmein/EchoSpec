@@ -23,7 +23,7 @@ public class HtmlRendererExample
             .AddRow("Bob", "87", "PASS")
             .AddRow("Charlie", "72", "WARN");
 
-        var html = (string)table.BuildWith(new HtmlRenderer());
+        var html = table.BuildWith(new HtmlRenderer());
         File.WriteAllText("table-output.html", html);
         Console.WriteLine("HTML table saved to: table-output.html\n");
 
@@ -63,25 +63,24 @@ public class HtmlRendererExample
             )
             .AddSection(
                 data => $"Total: {data.Count()} tests, {data.Count(r => r.Passed)} passed",
-                data => $"Total: {data.Count()} tests, {data.Count(r => r.Passed)} passed",
                 "Summary"
             );
 
-        var reportOutput = reportBuilder.Generate(testResults, ReportFormat.Both);
+        var reportOutput = reportBuilder.Generate(testResults, ReportFormat.All);
         reportOutput.WriteToConsole();
         reportOutput.SaveMarkdown("report.md");
-
-        var reportHtml = (string)reportBuilder.GenerateWith(testResults, new HtmlRenderer());
-        File.WriteAllText("report.html", reportHtml);
+        reportOutput.SaveHtml("report.html");
         Console.WriteLine("HTML report saved to: report.html\n");
         Console.WriteLine("Markdown report saved to: report.md\n");
 
         // Example 3: Generate multiple formats at once
         Console.WriteLine("=== Example 3: Multiple Formats ===\n");
 
-        var outputs =
-            (Dictionary<string, string>)
-                table.BuildWith(new ConsoleRenderer(), new MarkdownRenderer(), new HtmlRenderer());
+        var outputs = table.BuildWith(
+            new ConsoleRenderer(),
+            new MarkdownRenderer(),
+            new HtmlRenderer()
+        );
 
         Console.WriteLine("Console output:");
         Console.WriteLine(outputs["Console"]);

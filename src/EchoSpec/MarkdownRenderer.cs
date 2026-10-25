@@ -15,12 +15,15 @@ public class MarkdownRenderer : ITableRenderer, IReportRenderer
     {
         var sb = new StringBuilder();
 
-        // Header row
         sb.Append("| ");
-        sb.AppendJoin(" | ", table.Headers);
+        for (int i = 0; i < table.Headers.Count; i++)
+        {
+            if (i > 0)
+                sb.Append(" | ");
+            AppendEscapedCell(sb, table.Headers[i]);
+        }
         sb.AppendLine(" |");
 
-        // Separator row with alignment
         sb.Append("| ");
         for (int i = 0; i < table.Headers.Count; i++)
         {
@@ -38,16 +41,16 @@ public class MarkdownRenderer : ITableRenderer, IReportRenderer
         }
         sb.AppendLine(" |");
 
-        // Data rows
         foreach (var row in table.Rows)
         {
             sb.Append("| ");
-
-            var paddedRow = new List<string>(row);
-            while (paddedRow.Count < table.Headers.Count)
-                paddedRow.Add(string.Empty);
-
-            sb.AppendJoin(" | ", paddedRow.Take(table.Headers.Count));
+            for (int i = 0; i < table.Headers.Count; i++)
+            {
+                if (i > 0)
+                    sb.Append(" | ");
+                var value = i < row.Count ? row[i] : string.Empty;
+                AppendEscapedCell(sb, value);
+            }
             sb.AppendLine(" |");
         }
 
@@ -58,12 +61,14 @@ public class MarkdownRenderer : ITableRenderer, IReportRenderer
     public string RenderTitle(string title, string? referenceUrl = null)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"# {title}");
+        sb.Append("# ");
+        sb.AppendLine(title);
         sb.AppendLine();
 
         if (referenceUrl != null)
         {
-            sb.AppendLine($"Reference: {referenceUrl}");
+            sb.Append("Reference: ");
+            sb.AppendLine(referenceUrl);
             sb.AppendLine();
         }
 
@@ -74,7 +79,8 @@ public class MarkdownRenderer : ITableRenderer, IReportRenderer
     public string RenderSectionHeader(string sectionTitle)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"## {sectionTitle}");
+        sb.Append("## ");
+        sb.AppendLine(sectionTitle);
         sb.AppendLine();
         return sb.ToString();
     }
@@ -83,14 +89,43 @@ public class MarkdownRenderer : ITableRenderer, IReportRenderer
     public string RenderTable(ITable table) => Render(table);
 
     /// <inheritdoc/>
-    public string RenderText(string text)
-    {
-        return text;
-    }
+    public string RenderText(string text) => text;
 
     /// <inheritdoc/>
     public string CombineParts(IEnumerable<string> parts)
     {
-        return string.Join(Environment.NewLine, parts.Where(p => !string.IsNullOrWhiteSpace(p)));
+        var sb = new StringBuilder();
+        var first = true;
+        foreach (var part in parts)
+        {
+            if (string.IsNullOrWhiteSpace(part))
+                continue;
+            if (!first)
+                sb.AppendLine();
+            sb.Append(part);
+            first = false;
+        }
+        return sb.ToString();
+    }
+
+    private static void AppendEscapedCell(StringBuilder sb, string value)
+    {
+        foreach (var c in value)
+        {
+            switch (c)
+            {
+                case '|':
+                    sb.Append("\\|");
+                    break;
+                case '\r':
+                    break;
+                case '\n':
+                    sb.Append("<br>");
+                    break;
+                default:
+                    sb.Append(c);
+                    break;
+            }
+        }
     }
 }
