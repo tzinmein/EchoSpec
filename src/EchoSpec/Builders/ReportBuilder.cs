@@ -6,7 +6,7 @@ namespace EchoSpec.Builders;
 /// Generic report builder for creating formatted reports with tables and sections.
 /// </summary>
 /// <typeparam name="T">The type of data items in the report.</typeparam>
-public class ReportBuilder<T>
+public sealed class ReportBuilder<T>
 {
     private readonly List<IReportSection<T>> _sections = [];
     private string _title = "Report";

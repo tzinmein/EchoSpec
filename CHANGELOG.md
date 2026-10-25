@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `AddSection(console, markdown)` (HTML fell back to markdown text).
   Use `AddSection(plain)` or `AddSection(console, markdown, html)`.
 - `AddTable` takes `Action<TableBuilder, IEnumerable<T>>` (no `return table`).
+- Builders and built-in renderers are `sealed`; `ReportOutput` is a `sealed record`.
 - `TableBuilder.Build(ReportFormat.All)` throws `ArgumentOutOfRangeException`
   (1.x `Build(Both)` silently produced Markdown).
 - Empty tables (headers, no rows) now render header/separator across Console, Markdown, and HTML

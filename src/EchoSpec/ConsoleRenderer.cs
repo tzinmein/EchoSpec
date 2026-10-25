@@ -5,7 +5,7 @@ namespace EchoSpec;
 /// <summary>
 /// Renders tables in console format with box-drawing characters.
 /// </summary>
-public class ConsoleRenderer : ITableRenderer, IReportRenderer
+public sealed class ConsoleRenderer : ITableRenderer, IReportRenderer
 {
     /// <inheritdoc/>
     public string Name => "Console";

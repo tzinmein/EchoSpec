@@ -5,7 +5,7 @@ namespace EchoSpec;
 /// <summary>
 /// Renders tables in Markdown format with pipe-delimited tables.
 /// </summary>
-public class MarkdownRenderer : ITableRenderer, IReportRenderer
+public sealed class MarkdownRenderer : ITableRenderer, IReportRenderer
 {
     /// <inheritdoc/>
     public string Name => "Markdown";

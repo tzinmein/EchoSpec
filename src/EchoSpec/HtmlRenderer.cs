@@ -5,7 +5,7 @@ namespace EchoSpec;
 /// <summary>
 /// Renders tables and reports in HTML format.
 /// </summary>
-public class HtmlRenderer : ITableRenderer, IReportRenderer
+public sealed class HtmlRenderer : ITableRenderer, IReportRenderer
 {
     /// <inheritdoc/>
     public string Name => "HTML";

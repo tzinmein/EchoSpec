@@ -3,7 +3,7 @@ namespace EchoSpec;
 /// <summary>
 /// Container for report output in multiple formats.
 /// </summary>
-public class ReportOutput
+public sealed record ReportOutput
 {
     /// <summary>
     /// Console-formatted text output (if generated).

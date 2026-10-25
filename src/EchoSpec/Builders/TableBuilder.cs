@@ -3,7 +3,7 @@ namespace EchoSpec.Builders;
 /// <summary>
 /// Unified table builder that can output to different sinks.
 /// </summary>
-public class TableBuilder : ITable
+public sealed class TableBuilder : ITable
 {
     private readonly List<string> _headers = [];
     private readonly List<ColumnAlignment> _alignments = [];
