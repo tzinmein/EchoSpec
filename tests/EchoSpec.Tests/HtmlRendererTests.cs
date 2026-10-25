@@ -151,7 +151,6 @@ public class HtmlRendererTests
                     table.AddHeader("Name");
                     foreach (var item in items)
                         table.AddRow(item);
-                    return table;
                 }
             );
 
@@ -177,7 +176,6 @@ public class HtmlRendererTests
                     table.AddHeader("Name");
                     foreach (var item in items)
                         table.AddRow(item);
-                    return table;
                 }
             );
 

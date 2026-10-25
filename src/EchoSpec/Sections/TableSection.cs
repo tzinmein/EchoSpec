@@ -6,14 +6,14 @@ namespace EchoSpec.Sections;
 /// Table section implementation.
 /// </summary>
 internal class TableSection<T>(
-    Func<TableBuilder, IEnumerable<T>, TableBuilder> tableBuilder,
+    Action<TableBuilder, IEnumerable<T>> configure,
     string? title
 ) : IReportSection<T>
 {
     public IPreparedSection Prepare(IReadOnlyList<T> data)
     {
         var table = new TableBuilder();
-        tableBuilder(table, data);
+        configure(table, data);
         return new PreparedTableSection(title, table);
     }
 

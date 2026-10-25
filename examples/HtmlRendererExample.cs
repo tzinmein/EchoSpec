@@ -56,8 +56,6 @@ public class HtmlRendererExample
                             result.DurationMs
                         );
                     }
-
-                    return table;
                 },
                 "Test Results"
             )

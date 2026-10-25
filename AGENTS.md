@@ -51,7 +51,7 @@ Namespaces: `EchoSpec`, `EchoSpec.Builders`. Sections are `internal` under `Echo
 ```
 ReportBuilder<T>
   ├─ WithTitle / WithReferenceUrl
-  ├─ AddTable(configure, title?)           → TableSection.Prepare → ITable
+  ├─ AddTable(Action configure, title?)    → TableSection.Prepare → ITable
   └─ AddSection(plain | console/md/html)   → CustomSection.Prepare → cached strings
          │
          ▼

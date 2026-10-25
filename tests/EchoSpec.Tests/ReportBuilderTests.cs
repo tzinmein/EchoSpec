@@ -29,7 +29,6 @@ public class ReportBuilderTests
                         .AddHeader("Time (s)", ColumnAlignment.Right);
                     foreach (var test in data)
                         table.AddRow(test.Name, test.Passed ? "ok" : "fail", test.Duration);
-                    return table;
                 }
             )
             .GenerateWith(results, new ConsoleRenderer(), new MarkdownRenderer());
@@ -52,7 +51,6 @@ public class ReportBuilderTests
                     table.AddHeader("Name");
                     foreach (var item in data)
                         table.AddRow(item);
-                    return table;
                 }
             )
             .Generate(["Item1"], ReportFormat.Html);
@@ -102,7 +100,6 @@ public class ReportBuilderTests
                     table.AddHeader("Name");
                     foreach (var item in data)
                         table.AddRow(item);
-                    return table;
                 }
             );
 

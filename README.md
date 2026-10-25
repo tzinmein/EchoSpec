@@ -54,7 +54,6 @@ var builder = new ReportBuilder<TestResult>()
              .AddHeader("Status", ColumnAlignment.Center);
         foreach (var row in data)
             table.AddRow(row.Name, row.Passed ? "✓" : "✗");
-        return table;
     })
     .AddSection(data => $"Total: {data.Count()} tests");
 

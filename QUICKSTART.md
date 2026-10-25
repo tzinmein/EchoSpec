@@ -70,8 +70,6 @@ var reportBuilder = new ReportBuilder<TestResult>()
                 result.Passed ? "✓" : "✗",
                 $"{result.Duration.TotalMilliseconds:F0}");
         }
-
-        return table;
     })
     .AddSection(
         data => $"Total: {data.Count()} tests, {data.Count(r => r.Passed)} passed");
@@ -107,8 +105,6 @@ var output = new ReportBuilder<BenchmarkResult>()
 
         foreach (var result in data.OrderBy(r => r.Time))
             table.AddRow(result.Operation, $"{result.Time:F2}");
-
-        return table;
     }, "Detailed Results")
     .AddSection(
         data => $"Fastest: {data.MinBy(r => r.Time)?.Operation}",
@@ -165,7 +161,7 @@ For Console + Markdown without HTML, use `GenerateWith` / `BuildWith` with those
 ### ReportBuilder&lt;T&gt;
 
 - `WithTitle` / `WithReferenceUrl`
-- `AddTable(Func<TableBuilder, IEnumerable<T>, TableBuilder>, string? sectionTitle = null)`
+- `AddTable(Action<TableBuilder, IEnumerable<T>>, string? sectionTitle = null)`
 - `AddSection(contentFormatter, sectionTitle?)` — same plain text for every renderer; `RenderText` formats
 - `AddSection(console, markdown, html, sectionTitle?)` — per-format content (required when formats differ)
 - `Generate` → `ReportOutput` (`ConsoleText`, `MarkdownText`, `HtmlText`, `WriteToConsole()`, `SaveMarkdown`, `SaveHtml`)

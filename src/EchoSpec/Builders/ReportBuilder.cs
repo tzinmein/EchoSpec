@@ -37,15 +37,15 @@ public class ReportBuilder<T>
     /// <summary>
     /// Adds a table section to the report.
     /// </summary>
-    /// <param name="tableBuilder">A function to configure the table.</param>
+    /// <param name="configure">Configures the table from the report data.</param>
     /// <param name="sectionTitle">Optional section title.</param>
     /// <returns>The current <see cref="ReportBuilder{T}"/> instance.</returns>
     public ReportBuilder<T> AddTable(
-        Func<TableBuilder, IEnumerable<T>, TableBuilder> tableBuilder,
+        Action<TableBuilder, IEnumerable<T>> configure,
         string? sectionTitle = null
     )
     {
-        _sections.Add(new TableSection<T>(tableBuilder, sectionTitle));
+        _sections.Add(new TableSection<T>(configure, sectionTitle));
         return this;
     }
 
