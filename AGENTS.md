@@ -25,7 +25,7 @@ CI: `.github/workflows/dotnet.yml` — build/test on `master` and `v*.*.*` tags;
 ```
 src/EchoSpec/                 # Library (packable)
   Interfaces.cs               # ITable, ITableRenderer, IReportRenderer, ColumnAlignment
-  ReportFormat.cs             # Console | Markdown | Both | Html | All
+  ReportFormat.cs             # Console | Markdown | Html | All
   ReportOutput.cs             # ConsoleText, MarkdownText, HtmlText + Save*
   ConsoleRenderer.cs
   MarkdownRenderer.cs
@@ -66,7 +66,7 @@ ReportBuilder<T>
 |------|--------|
 | Typed `BuildWith` / `GenerateWith` | Single renderer → `string`; `params` → `IReadOnlyDictionary<string,string>`. No `object` / casts. |
 | HTML | In `ReportFormat` / `ReportOutput`. Table path = fragment; report path = full document via `CombineParts`. |
-| `TableBuilder.Build(Both\|All)` | Throws. Use `BuildWith` or call `Build` per format. |
+| `TableBuilder.Build(All)` | Throws. Use `BuildWith` or call `Build` per format. No `Both` — subset via `GenerateWith`/`BuildWith`. |
 | `HtmlRenderer.Render(ITable)` | Returns a **table fragment** (`<table>…</table>`), not a document. |
 | `CustomSection` | Plain formatter, console+markdown (+ optional html). Unknown names fall back to plain → markdown → console. |
 | Empty tables | Header/separator (or empty tbody) rendered consistently across Console/Markdown/HTML. |
@@ -100,8 +100,8 @@ Implement `ITableRenderer` and/or `IReportRenderer` (see QUICKSTART CSV sample).
 
 | File | Focus |
 |------|--------|
-| `TableBuilderTests` | Headers, rows, Build, Both/All throw, typed BuildWith, row widths, Clear |
-| `ReportBuilderTests` | Generate Both/Html/All, section APIs, prepare-once, duplicates |
+| `TableBuilderTests` | Headers, rows, Build, All throw, typed BuildWith, row widths, Clear |
+| `ReportBuilderTests` | Generate Html/All, GenerateWith subsets, section APIs, prepare-once, duplicates |
 | `RendererTests` | Console/Markdown smoke, empty tables, markdown escaping |
 | `HtmlRendererTests` | Escape, align, CombineParts, BuildWith/GenerateWith |
 

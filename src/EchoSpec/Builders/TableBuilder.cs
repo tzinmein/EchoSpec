@@ -146,12 +146,12 @@ public class TableBuilder : ITable
     /// </summary>
     /// <param name="format">
     /// <see cref="ReportFormat.Console"/>, <see cref="ReportFormat.Markdown"/>, or
-    /// <see cref="ReportFormat.Html"/>. Multi-format values (<see cref="ReportFormat.Both"/>,
-    /// <see cref="ReportFormat.All"/>) are not supported — use <see cref="BuildWith(ITableRenderer[])"/>.
+    /// <see cref="ReportFormat.Html"/>. <see cref="ReportFormat.All"/> is not supported —
+    /// use <see cref="BuildWith(ITableRenderer[])"/>.
     /// </param>
     /// <returns>The formatted table as a string.</returns>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when <paramref name="format"/> is a multi-format value or unknown.
+    /// Thrown when <paramref name="format"/> is <see cref="ReportFormat.All"/> or unknown.
     /// </exception>
     public string Build(ReportFormat format = ReportFormat.Markdown)
     {
@@ -162,10 +162,10 @@ public class TableBuilder : ITable
             ReportFormat.Console => new ConsoleRenderer(),
             ReportFormat.Markdown => new MarkdownRenderer(),
             ReportFormat.Html => new HtmlRenderer(),
-            ReportFormat.Both or ReportFormat.All => throw new ArgumentOutOfRangeException(
+            ReportFormat.All => throw new ArgumentOutOfRangeException(
                 nameof(format),
                 format,
-                $"{format} is not supported on TableBuilder.Build. Use BuildWith with multiple renderers, or call Build once per format."
+                "ReportFormat.All is not supported on TableBuilder.Build. Use BuildWith with multiple renderers, or call Build once per format."
             ),
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unknown report format."),
         };

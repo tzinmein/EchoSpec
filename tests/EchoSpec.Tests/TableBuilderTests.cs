@@ -110,14 +110,6 @@ public class TableBuilderTests
     }
 
     [Fact]
-    public void Build_Both_Throws()
-    {
-        var table = new TableBuilder().AddHeader("Name").AddRow("Alice");
-
-        Assert.Throws<ArgumentOutOfRangeException>(() => table.Build(ReportFormat.Both));
-    }
-
-    [Fact]
     public void Build_All_Throws()
     {
         var table = new TableBuilder().AddHeader("Name").AddRow("Alice");

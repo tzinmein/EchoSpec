@@ -131,9 +131,8 @@ public enum ReportFormat
 {
     Console,   // 0
     Markdown,  // 1
-    Both,      // 2 — Console + Markdown (ReportBuilder.Generate only)
-    Html,      // 3
-    All        // 4 — Console + Markdown + HTML (ReportBuilder.Generate only)
+    Html,      // 2
+    All        // 3 — Console + Markdown + HTML (ReportBuilder.Generate only)
 }
 ```
 
@@ -142,7 +141,8 @@ public enum ReportFormat
 | `TableBuilder.Build(ReportFormat.Html)` / `BuildWith(new HtmlRenderer())` | `<table>…</table>` fragment |
 | `ReportBuilder.Generate(ReportFormat.Html)` / `GenerateWith(..., new HtmlRenderer())` | Full HTML document via `CombineParts` |
 
-`TableBuilder.Build` supports only single formats (`Console`, `Markdown`, `Html`). `Both` / `All` throw.
+`TableBuilder.Build` supports only single formats (`Console`, `Markdown`, `Html`). `All` throws.
+For Console + Markdown without HTML, use `GenerateWith` / `BuildWith` with those renderers.
 
 ### Built-in renderers
 

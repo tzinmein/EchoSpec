@@ -70,7 +70,8 @@ output.SaveHtml("results.html"); // full HTML document
 |-------|--------|
 | Table HTML | `Build(ReportFormat.Html)` / `BuildWith(new HtmlRenderer())` → `<table>` fragment |
 | Report HTML | `Generate(ReportFormat.Html)` / `GenerateWith(..., new HtmlRenderer())` → full document |
-| `TableBuilder.Build` | Single formats only (`Console`, `Markdown`, `Html`). `Both` / `All` throw — use `BuildWith` |
+| `TableBuilder.Build` | Single formats only (`Console`, `Markdown`, `Html`). `All` throws — use `BuildWith` |
+| Console + Markdown only | `GenerateWith` / `BuildWith` with those two renderers (no `Both` enum) |
 | `BuildWith` / `GenerateWith` | One renderer → `string`; `params` → `IReadOnlyDictionary<string, string>` keyed by `Name` |
 | Duplicate `Name` | Throws — renderer names must be unique |
 | Row widths | Default pad/truncate to header count; set `StrictRowWidths = true` to throw |

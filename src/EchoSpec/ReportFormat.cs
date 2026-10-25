@@ -16,20 +16,15 @@ public enum ReportFormat
     Markdown = 1,
 
     /// <summary>
-    /// Console and Markdown (not HTML).
-    /// Supported by <c>ReportBuilder.Generate</c> only — not <c>TableBuilder.Build</c>.
-    /// </summary>
-    Both = 2,
-
-    /// <summary>
     /// HTML format. Tables produce a <c>&lt;table&gt;</c> fragment;
     /// reports produce a full HTML document.
     /// </summary>
-    Html = 3,
+    Html = 2,
 
     /// <summary>
     /// Console, Markdown, and HTML.
     /// Supported by <c>ReportBuilder.Generate</c> only — not <c>TableBuilder.Build</c>.
+    /// For a subset of formats, use <c>GenerateWith</c> with specific renderers.
     /// </summary>
-    All = 4,
+    All = 3,
 }

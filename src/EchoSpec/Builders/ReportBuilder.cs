@@ -168,7 +168,7 @@ public class ReportBuilder<T>
     /// <param name="data">The data to include in the report.</param>
     /// <param name="format">The output format(s) to generate.</param>
     /// <returns>A <see cref="ReportOutput"/> containing the generated report text.</returns>
-    public ReportOutput Generate(IEnumerable<T> data, ReportFormat format = ReportFormat.Both)
+    public ReportOutput Generate(IEnumerable<T> data, ReportFormat format = ReportFormat.All)
     {
         ArgumentNullException.ThrowIfNull(data);
 
@@ -179,10 +179,10 @@ public class ReportBuilder<T>
         string? markdownText = null;
         string? htmlText = null;
 
-        if (format is ReportFormat.Console or ReportFormat.Both or ReportFormat.All)
+        if (format is ReportFormat.Console or ReportFormat.All)
             consoleText = GenerateReport(prepared, new ConsoleRenderer());
 
-        if (format is ReportFormat.Markdown or ReportFormat.Both or ReportFormat.All)
+        if (format is ReportFormat.Markdown or ReportFormat.All)
             markdownText = GenerateReport(prepared, new MarkdownRenderer());
 
         if (format is ReportFormat.Html or ReportFormat.All)

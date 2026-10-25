@@ -10,7 +10,7 @@ public class ReportBuilderTests
     public record TestResult(string Name, bool Passed, double Duration);
 
     [Fact]
-    public void Generate_Both_ContainsConsoleAndMarkdown()
+    public void GenerateWith_ConsoleAndMarkdown_OmitsHtml()
     {
         var results = new[]
         {
@@ -18,7 +18,7 @@ public class ReportBuilderTests
             new TestResult("Checkout", false, 1.5),
         };
 
-        var report = new ReportBuilder<TestResult>()
+        var outputs = new ReportBuilder<TestResult>()
             .WithTitle("Test Results")
             .AddTable(
                 (table, data) =>
@@ -32,13 +32,13 @@ public class ReportBuilderTests
                     return table;
                 }
             )
-            .Generate(results, ReportFormat.Both);
+            .GenerateWith(results, new ConsoleRenderer(), new MarkdownRenderer());
 
-        Assert.Contains("Test Results", report.ConsoleText);
-        Assert.Contains("Login", report.ConsoleText);
-        Assert.Contains("Test Results", report.MarkdownText);
-        Assert.Contains("Login", report.MarkdownText);
-        Assert.Null(report.HtmlText);
+        Assert.Contains("Test Results", outputs["Console"]);
+        Assert.Contains("Login", outputs["Console"]);
+        Assert.Contains("Test Results", outputs["Markdown"]);
+        Assert.Contains("Login", outputs["Markdown"]);
+        Assert.False(outputs.ContainsKey("HTML"));
     }
 
     [Fact]

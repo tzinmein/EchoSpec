@@ -14,7 +14,7 @@ alwaysApply: true
 - `BuildWith` / `GenerateWith`: single renderer → `string`; `params` → `IReadOnlyDictionary<string,string>` by `Name`. No `object` returns.
 - `ReportFormat` includes `Html` / `All`; `ReportOutput` has `HtmlText` + `SaveHtml`.
 - `HtmlRenderer.Render(ITable)` is a **fragment**; full documents come from report `CombineParts`.
-- `TableBuilder.Build(Both|All)` throws — use `BuildWith` or single-format `Build`.
+- `TableBuilder.Build(All)` throws — use `BuildWith` or single-format `Build`. No `ReportFormat.Both`.
 - `CustomSection`: plain, console+markdown, or console+markdown+html; unknown names fall back plain → markdown → console.
 
 ## Workflow

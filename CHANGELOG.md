@@ -18,8 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `string BuildWith(ITableRenderer)` / `string GenerateWith(data, IReportRenderer)`
   - `IReadOnlyDictionary<string, string> BuildWith(params ITableRenderer[])` /
     `GenerateWith(data, params IReportRenderer[])`
-- `TableBuilder.Build(ReportFormat.Both)` and `Build(ReportFormat.All)` throw
-  `ArgumentOutOfRangeException` (previously `Both` silently produced Markdown).
+- Removed `ReportFormat.Both`. Use `ReportFormat.All`, or `GenerateWith` /
+  `BuildWith` for a subset of formats. `Generate` defaults to `All`.
+- `TableBuilder.Build(ReportFormat.All)` throws `ArgumentOutOfRangeException`
+  (1.x `Build(Both)` silently produced Markdown).
 - Empty tables (headers, no rows) now render header/separator across Console, Markdown, and HTML
   (Console/HTML previously returned `""`).
 - Duplicate renderer `Name` values throw instead of silently overwriting dictionary entries.
@@ -27,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `ReportFormat.Html` and `ReportFormat.All`.
+- `ReportFormat.Html` and `ReportFormat.All` (replaces `Both` for multi-format reports).
 - `ReportOutput.HtmlText` and `SaveHtml`.
 - `TableBuilder.Build(ReportFormat.Html)` for table fragments.
 - Typed single-renderer `BuildWith` / `GenerateWith` overloads.
