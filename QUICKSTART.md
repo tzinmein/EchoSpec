@@ -167,8 +167,7 @@ For Console + Markdown without HTML, use `GenerateWith` / `BuildWith` with those
 - `WithTitle` / `WithReferenceUrl`
 - `AddTable(Func<TableBuilder, IEnumerable<T>, TableBuilder>, string? sectionTitle = null)`
 - `AddSection(contentFormatter, sectionTitle?)` — same plain text for every renderer; `RenderText` formats
-- `AddSection(console, markdown, sectionTitle?)` — HTML falls back to markdown text unless you use the HTML overload
-- `AddSection(console, markdown, html, sectionTitle?)` — per-format content
+- `AddSection(console, markdown, html, sectionTitle?)` — per-format content (required when formats differ)
 - `Generate` → `ReportOutput` (`ConsoleText`, `MarkdownText`, `HtmlText`, `WriteToConsole()`, `SaveMarkdown`, `SaveHtml`)
 - `GenerateWith(data, IReportRenderer)` → `string`
 - `GenerateWith(data, params IReportRenderer[])` → `IReadOnlyDictionary<string, string>`

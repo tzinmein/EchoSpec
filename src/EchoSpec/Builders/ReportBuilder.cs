@@ -66,29 +66,9 @@ public class ReportBuilder<T>
     }
 
     /// <summary>
-    /// Adds a custom text section with Console and Markdown formatters.
-    /// HTML and other renderers use the Markdown formatter text unless an HTML-specific
-    /// overload is used — prefer plain <see cref="AddSection(Func{IEnumerable{T}, string}, string?)"/>
-    /// or the three-formatter overload when targeting HTML.
-    /// </summary>
-    /// <param name="consoleFormatter">Formatter for console output.</param>
-    /// <param name="markdownFormatter">Formatter for markdown (and fallback) output.</param>
-    /// <param name="sectionTitle">Optional section title.</param>
-    /// <returns>The current <see cref="ReportBuilder{T}"/> instance.</returns>
-    public ReportBuilder<T> AddSection(
-        Func<IEnumerable<T>, string> consoleFormatter,
-        Func<IEnumerable<T>, string> markdownFormatter,
-        string? sectionTitle = null
-    )
-    {
-        _sections.Add(new CustomSection<T>(consoleFormatter, markdownFormatter, sectionTitle));
-        return this;
-    }
-
-    /// <summary>
     /// Adds a custom text section with Console, Markdown, and HTML formatters.
-    /// Other custom renderers fall back to the Markdown formatter text, then
-    /// <see cref="IReportRenderer.RenderText"/>.
+    /// Other custom renderers fall back to plain-style preference: markdown, then console,
+    /// then <see cref="IReportRenderer.RenderText"/>.
     /// </summary>
     /// <param name="consoleFormatter">Formatter for console output.</param>
     /// <param name="markdownFormatter">Formatter for markdown output.</param>
@@ -103,7 +83,7 @@ public class ReportBuilder<T>
     )
     {
         _sections.Add(
-            new CustomSection<T>(consoleFormatter, markdownFormatter, sectionTitle, htmlFormatter)
+            new CustomSection<T>(consoleFormatter, markdownFormatter, htmlFormatter, sectionTitle)
         );
         return this;
     }

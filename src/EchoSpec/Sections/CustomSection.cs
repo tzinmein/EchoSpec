@@ -14,8 +14,8 @@ internal class CustomSection<T> : IReportSection<T>
     public CustomSection(
         Func<IEnumerable<T>, string> consoleFormatter,
         Func<IEnumerable<T>, string> markdownFormatter,
-        string? title,
-        Func<IEnumerable<T>, string>? htmlFormatter = null
+        Func<IEnumerable<T>, string> htmlFormatter,
+        string? title
     )
     {
         _consoleFormatter = consoleFormatter;
@@ -52,10 +52,10 @@ internal class CustomSection<T> : IReportSection<T>
         {
             var content = renderer.Name switch
             {
-                "Console" => console ?? plain ?? markdown ?? string.Empty,
+                "Console" => console ?? plain ?? string.Empty,
                 "Markdown" => markdown ?? plain ?? string.Empty,
-                "HTML" => html ?? plain ?? markdown ?? string.Empty,
-                _ => plain ?? markdown ?? console ?? string.Empty,
+                "HTML" => html ?? plain ?? string.Empty,
+                _ => plain ?? markdown ?? console ?? html ?? string.Empty,
             };
 
             if (title == null)

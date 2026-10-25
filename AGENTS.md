@@ -52,7 +52,7 @@ Namespaces: `EchoSpec`, `EchoSpec.Builders`. Sections are `internal` under `Echo
 ReportBuilder<T>
   ├─ WithTitle / WithReferenceUrl
   ├─ AddTable(configure, title?)           → TableSection.Prepare → ITable
-  └─ AddSection(plain | console/md[/html]) → CustomSection.Prepare → cached strings
+  └─ AddSection(plain | console/md/html)   → CustomSection.Prepare → cached strings
          │
          ▼
    Generate(format)     → ReportOutput { ConsoleText?, MarkdownText?, HtmlText? }
@@ -68,7 +68,7 @@ ReportBuilder<T>
 | HTML | In `ReportFormat` / `ReportOutput`. Table path = fragment; report path = full document via `CombineParts`. |
 | `TableBuilder.Build(All)` | Throws. Use `BuildWith` or call `Build` per format. No `Both` — subset via `GenerateWith`/`BuildWith`. |
 | `HtmlRenderer.Render(ITable)` | Returns a **table fragment** (`<table>…</table>`), not a document. |
-| `CustomSection` | Plain formatter, console+markdown (+ optional html). Unknown names fall back to plain → markdown → console. |
+| `CustomSection` | Plain formatter, or console+markdown+html. Unknown names fall back plain → markdown → console → html. |
 | Empty tables | Header/separator (or empty tbody) rendered consistently across Console/Markdown/HTML. |
 | Row widths | Pad/truncate to header count by default; `StrictRowWidths` throws. |
 | Duplicate `Name` | Throws when building multi-renderer dictionaries. |
