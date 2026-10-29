@@ -35,8 +35,9 @@ src/EchoSpec/                 # Library (packable)
   Sections/                   # Internal: TableSection, CustomSection (+ Prepare/Render)
 tests/EchoSpec.Tests/         # xUnit
 examples/HtmlRendererExample.cs   # Sample Main(); NOT a project (no .csproj)
-assets/logo.svg               # Brand mark (vector source)
-assets/icon.png               # NuGet PackageIcon (export from logo.svg)
+assets/logo.svg               # Brand mark (vector; prefers-color-scheme)
+assets/icon.svg               # NuGet tile source (navy plate + light mark)
+assets/icon.png               # NuGet PackageIcon (256px export from icon.svg)
 ```
 
 Namespaces: `EchoSpec`, `EchoSpec.Builders`. Sections are `internal` under `EchoSpec.Sections`.

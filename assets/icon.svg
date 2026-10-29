@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="EchoSpec">
+  <title>EchoSpec</title>
+  <!-- Self-contained NuGet tile: navy plate + light-slate mark (host theme independent) -->
+  <rect width="128" height="128" fill="#0F172A"/>
+  <defs>
+    <path id="e" d="M0 0h68v13H14v15h46v13H14v15h54v13H0V0z"/>
+  </defs>
+  <!-- Center the 96x88 mark in the square -->
+  <g transform="translate(16 20)">
+    <g transform="translate(4 16)">
+      <use href="#e" x="18" y="-12" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linejoin="miter" opacity="0.35"/>
+      <use href="#e" x="9" y="-6" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linejoin="miter" opacity="0.7"/>
+      <use href="#e" fill="#CBD5E1"/>
+    </g>
+  </g>
+</svg>

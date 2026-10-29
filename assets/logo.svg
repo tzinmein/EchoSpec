@@ -2,17 +2,25 @@
   <title>EchoSpec</title>
   <defs>
     <path id="e" d="M0 0h68v13H14v15h46v13H14v15h54v13H0V0z" />
+    <style>
+      .mark { fill: #0F172A; }
+      .echo { stroke: #F59E0B; }
+      @media (prefers-color-scheme: dark) {
+        .mark { fill: #CBD5E1; }
+        .echo { stroke: #FBBF24; }
+      }
+    </style>
   </defs>
 
   <!-- Origin padded so stroke miters stay inside the viewBox -->
   <g transform="translate(4 16)">
     <!-- Farther echo (faded) -->
     <use
+      class="echo"
       href="#e"
       x="18"
       y="-12"
       fill="none"
-      stroke="#F59E0B"
       stroke-width="2"
       stroke-linejoin="miter"
       opacity="0.35"
@@ -20,17 +28,17 @@
 
     <!-- Nearer echo -->
     <use
+      class="echo"
       href="#e"
       x="9"
       y="-6"
       fill="none"
-      stroke="#F59E0B"
       stroke-width="2"
       stroke-linejoin="miter"
       opacity="0.7"
     />
 
     <!-- Primary mark -->
-    <use href="#e" fill="#0F172A" />
+    <use class="mark" href="#e" />
   </g>
 </svg>
